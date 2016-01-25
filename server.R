@@ -2,6 +2,7 @@ library(shiny)
 library(ggplot2)
 library(reshape2)
 pcchange=function(x,lag=1) c(rep(0,lag),diff(x,lag))/x
+
 shinyServer(
   function(input,output){
     
@@ -11,6 +12,9 @@ shinyServer(
     AC_tot<-subset(AC_dta, subset = MEASURES_NAME == "Persons claiming JSA", select = c(1,2,6,7))
     jsa_sco<-read.csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_1_1.data.csv?geography=2092957701&date=latestMINUS5-latest&sex=7&item=1&measures=20100,20203&select=date_name,geography_name,geography_code,sex_name,item_name,measures_name,obs_value,obs_status_name")
     sco_tot<-subset(jsa_sco, subset = MEASURES_NAME == "Persons claiming JSA", select=c(1,2,6,7))
+    AC_tot$relchange<-pcchange(AC_tot$OBS_VALUE)
+    sco_tot$relchange<-pcchange(sco_tot$OBS_VALUE)
+    
     data<-reactive({
       File<-input$fl
       if(is.null(File)){
@@ -29,27 +33,29 @@ shinyServer(
     })
     
     output$abschnge_bar<-renderPlot({
-      ggplot(data = AC_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = OBS_VALUE))+
+      abplt<-ggplot(data = AC_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = OBS_VALUE))+
         geom_bar(stat = "identity")+
         theme_bw()+ xlab("Date")+ylab("Number of JSA Claimants")
+     abplt
     })
     output$relchange_line<-renderPlot({
-      AC_tot$relchange<-pcchange(AC_tot$OBS_VALUE)
-      sco_tot$relchange<-pcchange(sco_tot$OBS_VALUE)
-      ggplot(data = AC_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = relchange, group = 1))+
+     
+      rlplt<-ggplot(data = AC_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = relchange, group = 1))+
         geom_smooth(size = 1)+theme_bw()+geom_hline(yintercept = 0)+
         geom_smooth(data = sco_tot, aes(x = factor(DATE_NAME,levels = sco_tot$DATE_NAME), y = relchange, group = 1, fill = GEOGRAPHY_NAME))+
         xlab("Date")+ylab("Year-on-year Change")
+      rlplt
     })
     
     output$relchange_bar<-renderPlot({
-      mrg_tot<-rbind(AC_tot[1:5], sco_tot)    
-      mrg_tot<-mrg_tot[c(1,2,5)]
+      mrg_tot<-rbind(AC_tot, sco_tot)    
+      mrg_tot<-mrg_tot[,c(1,2,5)]
       mrg_tot<-melt(mrg_tot)
-      ggplot(data = mrg_tot, aes(x = factor(DATE_NAME,levels = mrg_tot$DATE_NAME), y = value, fill = GEOGRAPHY_NAME))+
+      rbplt<-ggplot(data = mrg_tot, aes(x = factor(DATE_NAME,levels = mrg_tot$DATE_NAME), y = value, fill = GEOGRAPHY_NAME))+
         geom_bar(position = "dodge", stat = "identity")+
         theme_bw()+geom_hline(yintercept = 0)+
         xlab("Date")+ylab("Year-on-year Change")
+      rbplt
     })
     
     output$totchange_perc<-renderPlot({
@@ -57,9 +63,16 @@ shinyServer(
       for(i in 1:nrow(AC_tot)){
         AC_tot[i,6]<-AC_tot[i,4]/AC_tot[1,4]*100
       }
-      ggplot(data = AC_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = abschange, group = 1))+
-        geom_smooth(size = 1)+theme_bw()+geom_hline(yintercept = 0)+
-        xlab("Date")+ylab("Year-on-year Change")+ylim(c(90,110))
+      sco_tot$abschange<-c(1:nrow(sco_tot))
+      for(i in 1:nrow(sco_tot)){
+        sco_tot[i,6]<-sco_tot[i,4]/sco_tot[1,4]*100
+      }
+      tcplt<-ggplot(data = AC_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = abschange, group = 1))+
+        geom_smooth(size = 1)+
+        geom_smooth(data = sco_tot, aes(x = factor(DATE_NAME,levels = sco_tot$DATE_NAME), y = abschange, group = 1, fill = GEOGRAPHY_NAME))+
+        theme_bw()+geom_hline(yintercept = 0)+
+        xlab("Date")+ylab("Year-on-year Change")
+      return(tcplt)
     })
     
     output$downloadPlot <- downloadHandler(
