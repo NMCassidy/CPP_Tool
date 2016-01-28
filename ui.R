@@ -1,6 +1,6 @@
 library(shiny)
 
-shinyUI(navbarPage("CPP Performance Reporting",
+shinyUI(navbarPage("CPP Performance Reporting",theme = "bootstrap.css",
            mainPanel(p("Welcome to the example CPP performance reporting SHINY App. Select an option from the drop down list to begin."),br(), p("Obviously I would spend time in here to explain how to use this and what it does. Could include any other text that was needed here.")),
            navbarMenu("A List",
                       tabPanel("One Outcome",tabsetPanel(
