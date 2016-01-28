@@ -40,7 +40,7 @@ shinyServer(
     })
     output$relchange_line<-renderPlot({
      
-      rlplt<-ggplot(data = AC_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = relchange, group = 1))+
+      rlplt<-ggplot(data = AC_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = relchange, group = 1, fill = GEOGRAPHY_NAME))+
         geom_smooth(size = 1)+theme_bw()+geom_hline(yintercept = 0)+
         geom_smooth(data = sco_tot, aes(x = factor(DATE_NAME,levels = sco_tot$DATE_NAME), y = relchange, group = 1, fill = GEOGRAPHY_NAME))+
         xlab("Date")+ylab("Year-on-year Change")
