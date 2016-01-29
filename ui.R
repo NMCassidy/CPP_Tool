@@ -8,7 +8,19 @@ shinyUI(navbarPage("CPP Performance Reporting",theme = "bootstrap.css",
                           "BarGraph", plotOutput("graph")),
                         tabPanel("Something Else",strong("something interesting can be in here")),
                         tabPanel("Third Thing", p("maybe target setting or something"))
-                      )),
+                        ),
+                        hr(),
+                        fluidRow(
+                          column(4, 
+                                 h5("Upload a Dataset"),
+                                 fileInput("fl", "Upload a Dataset", accept = ".csv")),
+                          column(4,
+                                 h5("Download Image"),
+                                 textInput("picname", "Plot Title", value = ""),
+                                 downloadButton('downloadPlot', 'Save Plot'))
+                          
+                        )
+                      ),
                       tabPanel("Economic",
                                tabsetPanel(
                         tabPanel("Employment - JSA",
@@ -17,24 +29,27 @@ shinyUI(navbarPage("CPP Performance Reporting",theme = "bootstrap.css",
                             tabPanel("Relative Change Line Chart",plotOutput("relchange_line")),
                             tabPanel("Absolute Change Line Chart", plotOutput("totchange_perc")),
                             tabPanel("Absolute Change Bar Chart", plotOutput("abschnge_bar"))
-                      )
+                      ),
+                      hr(),
+                      h3("Jobseeker's Allowance (JSA) is a contributory or income based,
+                         taxable benefit. It gives an indication of those who are in the 
+                         workforce, currently looking for work. within Aberdeen the JSA 
+                         rate has increased recently, while Scotland as a whole has seen 
+                         a decline in JSA claimants.")
                       ),
                       tabPanel("Economic Growth",
                                tabsetPanel(
-                                 tabPanel("Economic growth"),
+                                 tabPanel("GVA", plotOutput("GVA")),
                                  tabPanel("Comparison with Scotland"),
                                  tabPanel("business start-up rates")
-                               ))
-                            )),
-                      hr(),
-                    fluidRow(
-                        column(4, 
-                               h5("Upload a Dataset"),
-                               fileInput("fl", "Upload a Dataset", accept = ".csv")),
-                        column(4,
-                               h5("Download Image"),
-                               textInput("picname", "Plot Title", value = ""),
-                               downloadButton('downloadPlot', 'Save Plot'))
-                              
-                      )
+                               ),
+                               hr(),
+                               h3("Aberdeen City has a strong economy. however
+                                  the downturn in the North Sea oil and gas sector
+                                  hgihlights the need to ensure it remains sustainable."),
+                               br(),
+                               h4("Probably want to add something about the selected indicators."))
+                            ))
+    
+                   
            )))

@@ -1,6 +1,7 @@
 library(shiny)
 library(ggplot2)
 library(reshape2)
+library(xlsx)
 pcchange=function(x,lag=1) c(rep(0,lag),diff(x,lag))/x
 
 shinyServer(
@@ -14,8 +15,12 @@ shinyServer(
     sco_tot<-subset(jsa_sco, subset = MEASURES_NAME == "Persons claiming JSA", select=c(1,2,6,7))
     AC_tot$relchange<-pcchange(AC_tot$OBS_VALUE)
     sco_tot$relchange<-pcchange(sco_tot$OBS_VALUE)
-    
-    data<-reactive({
+  
+    #Can't get read.xlsx to open directly from web for some reason  
+ #url<-"http://ons.gov.uk/ons/rel/regional-accounts/regional-gross-value-added--income-approach-/december-2015/rft-table-1.xls"
+   x<-read.xlsx("C:/Users/cassidy.nicholas/Downloads/gvaireferencetablesv2_tcm77-426884.xls", sheetIndex = 4)
+
+        data<-reactive({
       File<-input$fl
       if(is.null(File)){
         return(NULL)}
@@ -81,6 +86,14 @@ shinyServer(
         xlab("Date")+ylab("Percentage Change")
       return(tcplt)
     })
+    
+    output$GVA<-renderPlot({
+      #extract relevant data
+      GVA_dta<-x[c(2,194,214),c(3,21)]
+      colnames(GVA_dta)<-c("Geography", "GVA_Value")
+      GVS_plt<-ggplot(data = GVA_dta, aes(x = Geography, y = GVA_Value))+geom_bar(stat = "identity")
+    GVS_plt
+      })
     
     output$downloadPlot <- downloadHandler(
       filename = function() {paste(input$picname, '.png', sep='') },
