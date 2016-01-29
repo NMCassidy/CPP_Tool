@@ -9,12 +9,23 @@ shinyUI(navbarPage("CPP Performance Reporting",theme = "bootstrap.css",
                         tabPanel("Something Else",strong("something interesting can be in here")),
                         tabPanel("Third Thing", p("maybe target setting or something"))
                       )),
-                      tabPanel("Employment - JSA",
+                      tabPanel("Economic",
                                tabsetPanel(
-                        tabPanel("Relative Change Bar Chart", plotOutput("relchange_bar")),
-                        tabPanel("Relative Change Line Chart",plotOutput("relchange_line")),
-                        tabPanel("Absolute Change Line Chart", plotOutput("totchange_perc"))
-                      )),
+                        tabPanel("Employment - JSA",
+                               tabsetPanel(
+                            tabPanel("Relative Change Bar Chart", plotOutput("relchange_bar")),
+                            tabPanel("Relative Change Line Chart",plotOutput("relchange_line")),
+                            tabPanel("Absolute Change Line Chart", plotOutput("totchange_perc")),
+                            tabPanel("Absolute Change Bar Chart", plotOutput("abschnge_bar"))
+                      )
+                      ),
+                      tabPanel("Economic Growth",
+                               tabsetPanel(
+                                 tabPanel("Economic growth"),
+                                 tabPanel("Comparison with Scotland"),
+                                 tabPanel("business start-up rates")
+                               ))
+                            )),
                       hr(),
                     fluidRow(
                         column(4, 

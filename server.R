@@ -38,6 +38,7 @@ shinyServer(
         theme_bw()+ xlab("Date")+ylab("Number of JSA Claimants")
      abplt
     })
+    
     output$relchange_line<-renderPlot({
       mrg_tot<-rbind(AC_tot, sco_tot) 
       rlplt<-ggplot(data = mrg_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = relchange))+
