@@ -39,10 +39,12 @@ shinyServer(
      abplt
     })
     output$relchange_line<-renderPlot({
-     
-      rlplt<-ggplot(data = AC_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = relchange, group = 1, fill = GEOGRAPHY_NAME))+
-        geom_smooth(size = 1)+theme_bw()+geom_hline(yintercept = 0)+
-        geom_smooth(data = sco_tot, aes(x = factor(DATE_NAME,levels = sco_tot$DATE_NAME), y = relchange, group = 1, fill = GEOGRAPHY_NAME))+
+      mrg_tot<-rbind(AC_tot, sco_tot) 
+      rlplt<-ggplot(data = mrg_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = relchange))+
+        geom_smooth(size = 1,aes(colour = GEOGRAPHY_NAME, linetype = GEOGRAPHY_NAME, group = GEOGRAPHY_NAME))+
+        theme_bw()+geom_hline(yintercept = 0)+
+        scale_colour_manual(name = "Geography",breaks = c("Aberdeen City", "Scotland"), values = c("red", "blue"))+
+        scale_linetype_manual(name = "Geography",breaks = c("Aberdeen City", "Scotland"), values = c(1,6))+
         xlab("Date")+ylab("Year-on-year Change")
       rlplt
     })
@@ -67,11 +69,15 @@ shinyServer(
       for(i in 1:nrow(sco_tot)){
         sco_tot[i,6]<-sco_tot[i,4]/sco_tot[1,4]*100
       }
-      tcplt<-ggplot(data = AC_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = abschange, group = 1))+
-        geom_smooth(size = 1)+
-        geom_smooth(data = sco_tot, aes(x = factor(DATE_NAME,levels = sco_tot$DATE_NAME), y = abschange, group = 1, fill = GEOGRAPHY_NAME))+
-        theme_bw()+geom_hline(yintercept = 0)+
-        xlab("Date")+ylab("Year-on-year Change")
+      mrg_tot<-rbind(AC_tot, sco_tot)
+      tcplt<-ggplot(data = mrg_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = abschange))+
+        geom_smooth(size = 1, aes(linetype = GEOGRAPHY_NAME, colour = GEOGRAPHY_NAME, group = GEOGRAPHY_NAME))+
+      scale_colour_manual(name = "Geography", breaks = c("Aberdeen City", "Scotland"),values = c("red", "blue"))+
+        scale_linetype_manual(name = "Geography", breaks = c("Aberdeen City", "Scotland"),values = c(1,6))+
+                theme_bw()+geom_hline(yintercept = 0)+ 
+        ylim(60,130)+
+        geom_hline(yintercept = 100)+
+        xlab("Date")+ylab("Percentage Change")
       return(tcplt)
     })
     
