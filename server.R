@@ -16,10 +16,11 @@ shinyServer(
     AC_tot$relchange<-pcchange(AC_tot$OBS_VALUE)
     sco_tot$relchange<-pcchange(sco_tot$OBS_VALUE)
   
-    #Can't get read.xlsx to open directly from web for some reason  
+    #Can't get read.xlsx to open directly from web for some reason-url is where dl from  
  #url<-"http://ons.gov.uk/ons/rel/regional-accounts/regional-gross-value-added--income-approach-/december-2015/rft-table-1.xls"
    x<-read.xlsx("C:/Users/cassidy.nicholas/Downloads/gvaireferencetablesv2_tcm77-426884.xls", sheetIndex = 4)
-
+   x2<-read.xlsx("C:/Users/cassidy.nicholas/Downloads/gvaireferencetablesv2_tcm77-426884.xls", sheetIndex = 6)
+   
         data<-reactive({
       File<-input$fl
       if(is.null(File)){
@@ -47,7 +48,7 @@ shinyServer(
     output$relchange_line<-renderPlot({
       mrg_tot<-rbind(AC_tot, sco_tot) 
       rlplt<-ggplot(data = mrg_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = relchange))+
-        geom_smooth(size = 1,aes(colour = GEOGRAPHY_NAME, linetype = GEOGRAPHY_NAME, group = GEOGRAPHY_NAME))+
+        geom_line(size = 1,aes(colour = GEOGRAPHY_NAME, linetype = GEOGRAPHY_NAME, group = GEOGRAPHY_NAME))+
         theme_bw()+geom_hline(yintercept = 0)+
         scale_colour_manual(name = "Geography",breaks = c("Aberdeen City", "Scotland"), values = c("red", "blue"))+
         scale_linetype_manual(name = "Geography",breaks = c("Aberdeen City", "Scotland"), values = c(1,6))+
@@ -77,10 +78,10 @@ shinyServer(
       }
       mrg_tot<-rbind(AC_tot, sco_tot)
       tcplt<-ggplot(data = mrg_tot, aes(x = factor(DATE_NAME,levels = AC_tot$DATE_NAME), y = abschange))+
-        geom_smooth(size = 1, aes(linetype = GEOGRAPHY_NAME, colour = GEOGRAPHY_NAME, group = GEOGRAPHY_NAME))+
+        geom_line(size = 1, aes(linetype = GEOGRAPHY_NAME, colour = GEOGRAPHY_NAME, group = GEOGRAPHY_NAME))+
       scale_colour_manual(name = "Geography", breaks = c("Aberdeen City", "Scotland"),values = c("red", "blue"))+
         scale_linetype_manual(name = "Geography", breaks = c("Aberdeen City", "Scotland"),values = c(1,6))+
-                theme_bw()+geom_hline(yintercept = 0)+ 
+                theme_bw()+
         ylim(60,130)+
         geom_hline(yintercept = 100)+
         xlab("Date")+ylab("Percentage Change")
@@ -91,9 +92,28 @@ shinyServer(
       #extract relevant data
       GVA_dta<-x[c(2,194,214),c(3,21)]
       colnames(GVA_dta)<-c("Geography", "GVA_Value")
-      GVS_plt<-ggplot(data = GVA_dta, aes(x = Geography, y = GVA_Value))+geom_bar(stat = "identity")
+      GVS_plt<-ggplot(data = GVA_dta, aes(x = Geography, y = GVA_Value))+geom_bar(stat = "identity", fill = rep("black", 3))+
+    theme_bw()+xlab("")+ylab("GVA per Head of Population (£)")+theme()
     GVS_plt
       })
+    output$GVA_change<-renderPlot({
+      GVA_chng<-x2[c(1,2,194,214),c(3,5:21)]
+      colnames(GVA_chng)<-GVA_chng[1,]
+      colnames(GVA_chng)[c(1,18)]<-c("Region Name","2014")
+      GVA_chng<-GVA_chng[-1,]
+      GVA_chng[18]<-as.numeric(as.character(GVA_chng[18][1:3,]))
+      GVA_chng_mlt<-melt(GVA_chng, id = "Region Name")
+      GVA_chng_plt<-ggplot(data = GVA_chng_mlt, aes(x = variable, y = value))+
+        geom_line(size = 1, aes(linetype = `Region Name`, colour = `Region Name`, group = `Region Name`))+
+        geom_hline(yintercept = 0)+theme_bw()+
+        scale_colour_manual(name = "Region", breaks = c("Aberdeen City and Aberdeenshire","Scotland", "United Kingdom"), values = c("red", "blue", "black"))+
+        scale_linetype_manual(name = "Region", breaks = c("Aberdeen City and Aberdeenshire","Scotland", "United Kingdom"), values = c(1, 7, 8))+
+        theme(legend.position = "bottom",
+              plot.background = element_rect(colour = "black"),
+              legend.background = element_rect(colour = "black"))+
+        xlab("Year")+ylab("GVA Growth in %")
+      GVA_chng_plt
+    })
     
     output$downloadPlot <- downloadHandler(
       filename = function() {paste(input$picname, '.png', sep='') },
