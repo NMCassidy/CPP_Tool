@@ -37,16 +37,16 @@ shinyUI(navbarPage("CPP Performance Reporting",theme = "bootstrap.css",
                          rate has increased recently, while Scotland as a whole has seen 
                          a decline in JSA claimants.")
                       ),
-                      tabPanel("Economic Growth",
+                      tabPanel("Economic Performance",
                                tabsetPanel(
                                  tabPanel("GVA", plotOutput("GVA")),
-                                 tabPanel("Comparison with Scotland"),
+                                 tabPanel("GVA Change", plotOutput("GVA_change")),
                                  tabPanel("business start-up rates")
                                ),
                                hr(),
-                               h3("Aberdeen City has a strong economy. however
-                                  the downturn in the North Sea oil and gas sector
-                                  hgihlights the need to ensure it remains sustainable."),
+                               h3("Aberdeen City has a strong economy.
+                                  The downturn in the North Sea oil and gas sector
+                                  highlights the need to ensure it remains sustainable."),
                                br(),
                                h4("Probably want to add something about the selected indicators."))
                             ))
